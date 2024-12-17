@@ -2,6 +2,7 @@
 import {getRandomNumber} from "../utils.js";
 import {send} from "./api.js";
 import {fullState, INPUT_EVENTS, inputState} from "shared/api/events.js";
+import {calculateDropInterval, calculateLevelPerLines, scoresFormula} from "./balance.js";
 
 const ROWS = 20;
 const COLS = 10;
@@ -37,8 +38,7 @@ const TETROMINOS = {
 };
 
 const SEND_EVERY_TICK = 5;
-const START_DROP_INTERVAL = 400;
-const MIN_DROP_INTERVAL = 50;
+
 
 const themes = {
     light: {
@@ -61,7 +61,6 @@ export class Tetris {
     constructor(ctx, nextCtx, playerId, isDarkTheme) {
         this.ctx = ctx;
         this.nextCtx = nextCtx;
-        this.dropInterval = 1000;
         this.dropTimer = null;
         this.pieces = Object.keys(TETROMINOS);
         this.playerId = playerId;
@@ -166,21 +165,10 @@ export class Tetris {
         }
 
         if (cleared > 0) {
-            const scoresFormula = (lines) => {
-                const a = 100;
-                const r = 1.5;
 
-                if (lines <= 0) return 0;
-
-                if (r === 1) {
-                    return a * lines;
-                }
-
-                return a * (Math.pow(r, lines) - 1) / (r - 1);
-            }
             mutations.clearLines(this.playerId, cleared);
             mutations.incrementScore(this.playerId, scoresFormula(cleared));
-            mutations.setLevel(this.playerId, this.calculateLevelPerLines(gameState.games[this.playerId].linesCleared));
+            mutations.setLevel(this.playerId, calculateLevelPerLines(gameState.games[this.playerId].linesCleared));
             mutations.updateBoard(this.playerId, newBoard);
         }
     }
@@ -291,14 +279,14 @@ export class Tetris {
             }
         }
         if (gameState.games[this.playerId].isGameOver || this.isPaused()) {
-            this.dropTimer = setTimeout(() => this.gameLoop(), this.calculateDropInterval(gameState.games[this.playerId].level));
+            this.dropTimer = setTimeout(() => this.gameLoop(), calculateDropInterval(gameState.games[this.playerId].level));
             return;
         }
         
         this.moveDown();
         this.drawBoard();
         this.drawNextPiece();
-        this.dropTimer = setTimeout(() => this.gameLoop(), this.calculateDropInterval(gameState.games[this.playerId].level));
+        this.dropTimer = setTimeout(() => this.gameLoop(), calculateDropInterval(gameState.games[this.playerId].level));
     }
 
     start() {
@@ -425,14 +413,5 @@ export class Tetris {
 
     sendInputState(input) {
         send(inputState(appState.roomId, this.playerId, input));
-    }
-
-    calculateDropInterval(level) {
-        const dropInterval = START_DROP_INTERVAL * Math.pow(0.9, level - 1);
-        return Math.max(dropInterval, MIN_DROP_INTERVAL);
-    }
-    
-    calculateLevelPerLines(lines) {
-        return Math.floor(lines / 10) + 1;
     }
 }

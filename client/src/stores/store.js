@@ -105,7 +105,11 @@ export const mutations = {
             if (discordSdk) {
                 url = `wss://${window.location.host}/.proxy/ws`;
             } else {
-                url = `wss://${window.location.host}/ws`;
+                if (window.location.protocol === 'http:') {
+                    url = `ws://${window.location.host}/ws`;
+                } else {
+                    url = `wss://${window.location.host}/ws`;
+                }
             }
             console.log('Connecting to:', url);
             appState.ws = new WebSocket(url);
