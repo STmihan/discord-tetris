@@ -14,20 +14,19 @@
       </div>
       <div class="right-panel">
         <div class="info-panel">
-<!--          <h2 class="title">{{ playerId }}</h2>-->
-          <h2 class="title">TETRIS</h2>
+          <h2 class="title">{{ playerId }}</h2>
           <div class="score-block">
             <div class="info-item">
               <span class="label">Score:</span>
-              <span class="value">{{ gameState.games[playerId]?.score || 20300 }}</span>
+              <span class="value">{{ gameState.games[playerId]?.score || 0 }}</span>
             </div>
             <div class="info-item">
               <span class="label">Lines:</span>
-              <span class="value">{{ gameState.games[playerId]?.linesCleared || 21 }}</span>
+              <span class="value">{{ gameState.games[playerId]?.linesCleared || 0 }}</span>
             </div>
             <div class="info-item">
               <span class="label">Level:</span>
-              <span class="value">{{ gameState.games[playerId]?.level || 2 }}</span>
+              <span class="value">{{ gameState.games[playerId]?.level || 1 }}</span>
             </div>
           </div>
           <div class="next-block">
@@ -115,11 +114,11 @@ onBeforeUnmount(() => {
 const gameStateLabel = computed(() => {
   switch (appState.state) {
     case 'waiting':
-      return 'Waiting for players';
+      return 'Waiting for players\nPress "Space" to continue';
     case 'gameover':
-      return 'Game Over';
+      return 'Game Over\nPress "Space" to restart';
     case 'paused':
-      return 'Paused';
+      return 'Paused\nPress "Esc" to continue';
     default:
       return '';
   }
@@ -236,6 +235,8 @@ const gameStateLabel = computed(() => {
   font-size: 24px;
   color: var(--text-dark);
   transition: color 0.3s;
+  white-space: pre-line;
+  text-align: center;
 }
 
 .tetris.dark .locker-panel {
