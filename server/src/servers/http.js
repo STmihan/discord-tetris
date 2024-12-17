@@ -4,6 +4,7 @@ export function httpServer(port) {
     const app = express();
     app.use(express.json());
     app.use(express.static("../client/dist"));
+    app.use('/public', express.static("public"));
     
     app.post("/api/token", async (req, res) => {
         try {
